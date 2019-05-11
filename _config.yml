@@ -1,6 +1,6 @@
 # Site settings
-title: Seaside Blog
-SEOTitle: Seaside博客 | Seaside Blog
+title: 不止
+SEOTitle: Seaside博客 | 随他
 header-img: img/home-bg.jpg
 email: seasidezhang@gmail.com
 description: "关于程序与设计、黑客与画家 | 黄玄，Web & Mobile Lover，Software Engineer，UX Designer | 这里是 @Hux黄玄 的个人博客，与你一起发现更大的世界。"
@@ -78,8 +78,8 @@ ga_domain: huangxuan.me
 
 # Sidebar settings
 sidebar: true                           # whether or not using Sidebar.
-sidebar-about-description: "For the next quantum leap<br>离开世界之前，一切都是过程"
-sidebar-avatar: /img/avatar-hux-ny.jpg      # use absolute URL, seeing it's used in both `/` and `/about/`
+sidebar-about-description: "For the next quantum leap<br>一切都是最好的安排"
+sidebar-avatar: /img/home_self.jpeg      # use absolute URL, seeing it's used in both `/` and `/about/`
 
 
 
