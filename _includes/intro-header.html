@@ -82,14 +82,14 @@
                     {% comment %} always create a h2 for keeping the margin {% endcomment %}
                     <h2 class="subheading">{{ page.subtitle }}</h2>
 
-                    <span class="meta">Posted by {% if page.author %}{{ page.author }}{% else %}{{ site.title }}{% endif %}
-                        on {{ page.date | date: "%B %-d, %Y" }}</span>
                     <!--文章访问量统计-->
                     
-                    <span id="busuanzi_container_page_pv" style="display: inline;">已读<span
-                            id="busuanzi_value_page_pv"></span>次</span>
+                    <span id="busuanzi_container_page_pv" style="display: inline;">Page views:<span id="busuanzi_value_page_pv"></span>times</span>
                     
-                    <!--文章访问量统计--> <span class="meta">
+                    <!--文章访问量统计-->
+                    <span class="meta">Posted by {% if page.author %}{{ page.author }}{% else %}{{ site.title }}{% endif %}
+                        on {{ page.date | date: "%B %-d, %Y" }}</span>
+
                 </div>
             </div>
         </div>
