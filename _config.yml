@@ -99,7 +99,6 @@ service-worker: true
 page-mathjax: flase
 
 
-
 # Friends
 friends: [
     {
