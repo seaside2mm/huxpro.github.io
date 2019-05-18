@@ -96,7 +96,7 @@ service-worker: true
 
 
 # MathJax rendering for layout:page (e.g. post preview)
-page-mathjax: true
+page-mathjax: flase
 
 
 
@@ -108,5 +108,8 @@ friends: [
     # },{
         title: "go夜读",
         href: "https://reading.developerlearning.cn/"
+    },{
+        title: "Liao Can",
+        href: "https://liaocan.top/"
     }
 ]
