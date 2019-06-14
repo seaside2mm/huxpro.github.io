@@ -1,39 +1,15 @@
-原创作品转载请注明出处 +《Linux内核分析》MOOC课程http://mooc.study.163.com/course/USTC-1000029000
-
-# 一、实验要求
-- 使用gdb跟踪分析一个系统调用内核函数（您上周选择那一个系统调用），系统调用列表参见http://codelab.shiyanlou.com/xref/linux-3.18.6/arch/x86/syscalls/syscall_32.tbl ,推荐在实验楼Linux虚拟机环境下完成实验。
-
-- 根据本周所学知识分析系统调用的过程，从system_call开始到iret结束之间的整个过程，并画出简要准确的流程图。
-
-
-# 二、实验环境
-
-本地虚拟机的linux环境（ubuntu12.02 32bit）
-
-主要优点：使用方便，方便保存，不受网络影响。
-
-# 三、实验过程
-
-## 1.实验说明
-本实验基于孟老师的github项目：[mykernel](https://github.com/mengning/mykernel)。
-
-## 2.添加自定义代码
-
-### 在LinuxKernel/menu/test.c中添加如图所示的代码
-
-![这里写图片描述](http://img.blog.csdn.net/20170326211839057?watermark/2/text/aHR0cDovL2Jsb2cuY3Nkbi5uZXQvcXE0NzA4Njk4NTI=/font/5a6L5L2T/fontsize/400/fill/I0JBQkFCMA==/dissolve/70/gravity/SouthEast)
-
-运行自动编译脚本，生成根文件系统
-```
-make rootfs
-```
-
-### MenuOS的运行
-![这里写图片描述](http://img.blog.csdn.net/20170326212121138?watermark/2/text/aHR0cDovL2Jsb2cuY3Nkbi5uZXQvcXE0NzA4Njk4NTI=/font/5a6L5L2T/fontsize/400/fill/I0JBQkFCMA==/dissolve/70/gravity/SouthEast)
-
-![这里写图片描述](http://img.blog.csdn.net/20170326212140685?watermark/2/text/aHR0cDovL2Jsb2cuY3Nkbi5uZXQvcXE0NzA4Njk4NTI=/font/5a6L5L2T/fontsize/400/fill/I0JBQkFCMA==/dissolve/70/gravity/SouthEast)
-
-## 3.打开另一个shell终端，进入gdb调试工具
+---
+layout:     post                    # 使用的布局（不需要改）
+title:      linux内核分析实验-第5节 分析system_call中断处理过程               # 标题 
+subtitle:   linux在叹息 #副标题
+date:       2018-11-16              # 时间
+author:     BY  Seaside             # 作者
+header-img: img/blog/28.jpg    #这篇文章标题背景图片
+catalog: true                       # 是否归档
+tags:                               #标签
+    - OS
+    - linux内核分析实验
+---
 
 ```
 gdb
@@ -45,7 +21,6 @@ target remote:1234        //连接内核调试
 b sys_getuid              //设置断点
 
 c                         //继续执行
-
 ```
 ![这里写图片描述](http://img.blog.csdn.net/20170326220849125?watermark/2/text/aHR0cDovL2Jsb2cuY3Nkbi5uZXQvcXE0NzA4Njk4NTI=/font/5a6L5L2T/fontsize/400/fill/I0JBQkFCMA==/dissolve/70/gravity/SouthEast)
 
@@ -61,21 +36,14 @@ c                         //继续执行
 在system_call处设置断点，但是无法进入函数内部，指令运行结束，返回pid
 ![这里写图片描述](http://img.blog.csdn.net/20170327133219980?watermark/2/text/aHR0cDovL2Jsb2cuY3Nkbi5uZXQvcXE0NzA4Njk4NTI=/font/5a6L5L2T/fontsize/400/fill/I0JBQkFCMA==/dissolve/70/gravity/SouthEast)
 
-# 五、实验分析
+# 实验分析
 
 中断相关的初始化代码是通过linux-3.18.6/init/main.c文件中的start\_kernel函数里的trap\_init()初始化的。执行int $0x80指令后内核开始执行system_call入口处开始的代码，位于entry_32.S汇编文件中。
 下面分析system_call汇编代码：
 
-```
-中断相关的初始化代码是通过linux-3.18.6/init/main.c文件中的start_kernel函数里的trap_init()初始化的。执行int $0x80指令后内核开始执行system_call入口处开始的代码，位于entry_32.S汇编文件中。
-下面分析system_call汇编代码：
-```
-
-\arch\x86\kernel\traps.c中的trap_init()
-
-```
-void __init trap_init(void)
-{
+```c
+// \arch\x86\kernel\traps.c
+void __init trap_init(void){
     int i;
  
 #ifdef CONFIG_EISA
@@ -147,24 +115,30 @@ void __init trap_init(void)
 #endif
 }
 ```
-第48行set\_system_trap_gate(SYSCALL_VECTOR, &system_call);设置了系统调用的中断向量（即系统调用的入口地址），即system_call“函数”的地址绑定到中断向量。所以在int $0x80之后，就转到中断向量，从而执行中断处理程序（系统调用程序）。也就是说中断向量指向的中断处理程序就是int $0x80指令执行完之后接着执行的指令的地方。
+第48行set\_system_trap_gate(SYSCALL_VECTOR, &system_call);
+
+设置了系统调用的中断向量（即系统调用的入口地址），即system_call“函数”的地址绑定到中断向量。所以在int 0x80之后，就转到中断向量，从而执行中断处理程序（系统调用程序）。
+
+也就是说中断向量指向的中断处理程序就是int, 0x80指令执行完之后接着执行的指令的地方。
 
 /arch/x86/kernel/entry_32.S
 
-```
+```assembly
 ENTRY(system_call)
     RING0_INT_FRAME         # can't unwind into user space anyway
     ASM_CLAC
     pushl_cfi %eax          # save orig_eax
     SAVE_ALL//保存现场
-    GET_THREAD_INFO(%ebp)//获取thread_info结构的信息
-                    # system call tracing in operation / emulation
-    testl $_TIF_WORK_SYSCALL_ENTRY,TI_flags(%ebp)// 测试是否有系统跟踪
-    jnz syscall_trace_entry//如果有系统跟踪，先执行，然后再回来
-    cmpl $(NR_syscalls), %eax//比较eax中的系统调用号和最大syscall，超过则无效
-    jae syscall_badsys//无效的系统调用 直接返回
+    GET_THREAD_INFO(%ebp) #获取thread_info结构的信息
+    
+    # system call tracing in operation / emulation
+    testl $_TIF_WORK_SYSCALL_ENTRY,TI_flags(%ebp) #测试是否有系统跟踪
+    jnz syscall_trace_entry #如果有系统跟踪，先执行，然后再回来
+    cmpl $(NR_syscalls), %eax  #比较eax中的系统调用号和最大syscall，超过则无效
+    jae syscall_badsys  #无效的系统调用 直接返回
+    
 syscall_call:
-    call *sys_call_table(,%eax,4)//系统调用处理程序使用eax传过来的系统调用号查表来执行相应函数
+    call *sys_call_table(,%eax,4)  #系统调用处理程序使用eax传过来的系统调用号查表来执行相应函数
 syscall_after_call://保存返回值
     movl %eax,PT_EAX(%esp)      # store the return value
 syscall_exit:
@@ -200,7 +174,7 @@ irq_return:
 ```
 
 SAVE_ALL
-```
+```assembly
 .macro SAVE_ALL
     cld
     PUSH_GS
@@ -233,13 +207,11 @@ SAVE_ALL
 .endm
 ```
 
-
-
 在这段代码中，保存了相关寄存器的值。它们是：ES,DS,EAX,EBP,EDI,ESI,EDX,ECX,EBX等等。从这里寄存器的顺序可以知道压栈的最后压入的是ebx，这里压入的栈是内核栈。
 
 RESTORE_REGS
 
-```
+```assembly
 .macro RESTORE_INT_REGS
     popl_cfi %ebx
     CFI_RESTORE ebx
@@ -285,7 +257,7 @@ RESTORE_REGS
 
 源码几百行过于复杂，孟老师将它简化几十行的汇编伪代码：
 
-```
+```assembly
 .macro INTERRUPT_RETURN
          iret
 .endm 
@@ -330,7 +302,7 @@ syscall_exit_work:
 ![这里写图片描述](http://img.blog.csdn.net/20170326225135343?watermark/2/text/aHR0cDovL2Jsb2cuY3Nkbi5uZXQvcXE0NzA4Njk4NTI=/font/5a6L5L2T/fontsize/400/fill/I0JBQkFCMA==/dissolve/70/gravity/SouthEast)
 
 
-# 六、总结
+# 总结
 
 1. 执行int 0x80指令后系统从用户态进入内核态，跳到system\_call()函数处执行相应服务进程。在此过程中内核先保存中断环境，然后执行系统调用函数。
 2. system\_call()函数通过系统调用号查找系统调用表sys_cal_table来查找具体系统调用服务进程。

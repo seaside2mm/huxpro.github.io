@@ -1,4 +1,17 @@
-### Linux内核源代码
+---
+layout:     post                    # 使用的布局（不需要改）
+title:      linux内核分析实验-第3节 跟踪分析Linux内核的启动过程               # 标题 
+subtitle:   linux在叹息 #副标题
+date:       2018-11-4              # 时间
+author:     BY  Seaside             # 作者
+header-img: img/blog/28.jpg    #这篇文章标题背景图片
+catalog: true                       # 是否归档
+tags:                               #标签
+    - OS
+    - linux内核分析实验
+---
+
+Linux内核源代码
 
 - arch/ 支持不同cpu的源代码
 - Documentations/ 文档存储
@@ -8,7 +21,7 @@
 - lib/ 公共库文件
 - mm/ 内存管理相关的代码
 
-# 一、实验要求
+# 实验要求
 
 使用gdb跟踪调试内核从start\_kernel到init进程启动，详细分析从start_kernel到init进程启动的过程。
 
@@ -19,7 +32,7 @@
 
 
 
-# 四、实验过程
+# 实验过程
 
 ## 1. 使用实验楼的虚拟机打开shell
 
@@ -52,36 +65,17 @@ gdb
 ```
 ![这里写图片描述](http://img.blog.csdn.net/20170312200549577?watermark/2/text/aHR0cDovL2Jsb2cuY3Nkbi5uZXQvcXE0NzA4Njk4NTI=/font/5a6L5L2T/fontsize/400/fill/I0JBQkFCMA==/dissolve/70/gravity/SouthEast)
 
-
-
-#### 关于符号表
+**关于符号表**
 
 内核编译的时候为什么要生成符号表？
 
-所谓内核符号表就是在内核内部函数或变量中可供外部引用的函数和变量的符号表，如下图所示。
+所谓内核符号表就是在内核内部函数或变量中可供外部引用的函数和变量的符号表。在内核符号表中，左边一列是符号地址，右边一列是函数和变量。在汇编语言当中函数的调用通过Jump等机器指令来完成，于是就需要函数名，变量名和内存地址的映射，这种映射关系保存在符号表中，在调试的时候也会根据这种映射关系设置断点。如果不加载符号表或者符号表加载错误，就会出现以下报错，符号表加载成功之后断点设置成功，可以跟踪分析调试。
 
-![img](https://images2015.cnblogs.com/blog/744942/201603/744942-20160311173156913-314713817.jpg)
-
-在内核符号表中，左边一列是符号地址，右边一列是函数和变量。在汇编语言当中函数的调用通过Jump等机器指令来完成，于是就需要函数名，变量名和内存地址的映射，这种映射关系保存在符号表中，在调试的时候也会根据这种映射关系设置断点。
-
-如果不加载符号表或者符号表加载错误，就会出现以下报错：
-
-![img](https://images2015.cnblogs.com/blog/744942/201603/744942-20160311173212835-472492917.jpg)
-
-符号表加载成功之后断点设置成功，可以跟踪分析调试：
-
-![img](https://images2015.cnblogs.com/blog/744942/201603/744942-20160311173301819-1069076443.jpg)
-
-
+---
 
 内核启动在start\_kernel进程处停住了，在这之前从Power On开始是很长的初始化过程。
 
-```
-（gdb）c # 系统继续执行
-```
 按住c回车，系统就可以继续执行了，会一直执行到start_kernel的位置
-
-![这里写图片描述](http://img.blog.csdn.net/20170312200254825?watermark/2/text/aHR0cDovL2Jsb2cuY3Nkbi5uZXQvcXE0NzA4Njk4NTI=/font/5a6L5L2T/fontsize/400/fill/I0JBQkFCMA==/dissolve/70/gravity/SouthEast)
 
 查看start_kernel处的代码
 
@@ -99,13 +93,12 @@ rest\_init是start\_kernel调用的最后一个函数。设置相关的断点，
 
 在代码的第403行，第一个用户态进程开始创建。
 
-# 五、代码分析
+# 代码分析
 
 ## 1.start_kernel函数的执行过程
 
 ```c
-asmlinkage __visible void __init start_kernel(void)
-{
+asmlinkage __visible void __init start_kernel(void){
     char *command_line;//命令行，用来存放bootloader传递过来的参数  
     char *after_dashes;
  
@@ -391,7 +384,7 @@ kthreadd进程由idle通过kernel\_thread创建，并始终运行在内核空间
 
 # 构造一个简单的Linux系统MenuOS
 
-使用自己的Linux系统环境搭建MenuOS的过程
+使用自己的ubuntu12系统环境搭建MenuOS的过程
 
 #### 下载内核源代码编译内核
 

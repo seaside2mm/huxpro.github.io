@@ -13,15 +13,10 @@
 
 ```
 cd LinuxKernel
-
 rm -rf menu
-
 git clone https://github.com/mengning/menu.git
-
 cd menu
-
 mv test_fork.c test.c
-
 make rootfs
 ```
 
@@ -538,8 +533,6 @@ copy_thread 这段代码为我们解释了两个相当重要的问题！
 
 
 # 第六节 进程的描述和进程的创建
-
-
 
 ### 本周的主要内容：
 
